@@ -10,20 +10,9 @@
 ![Lodash](https://img.shields.io/badge/Lodash-4-3492FF?logo=lodash&logoColor=white)
 
 ## 🎬 Demo
-
-![News Feed App demo: Arabic feed (right-to-left), live search, topics, paging and switching to English](docs/demo.gif)
-
 ▶️ **Full walkthrough with voice-over (Egyptian Arabic, 1 min 20 s).** Press play below to watch it with sound:
 
-<!--
-  HOW TO SHOW THE FULL VIDEO WITH SOUND (one time, about 1 minute):
-  1. Open this README on GitHub and click the ✏️ (Edit) button.
-  2. Drag the file "News_Feed_Demo_EG.mp4" from your computer and drop it on the line below this comment.
-  3. GitHub uploads it and inserts a link like https://github.com/user-attachments/assets/xxxxxxxx
-     Keep that link alone on its own line: GitHub turns it into a video player right inside the README.
-  4. Click "Commit changes".
-  (A video file committed inside the repository will NOT play in the README; it must be uploaded this way.)
--->
+https://github.com/user-attachments/assets/b94ef71a-df05-43a1-9565-0b8abe581a4a
 
 
 ---
