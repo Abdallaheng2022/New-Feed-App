@@ -1,20 +1,29 @@
-# All Around the World
+# News Feed App
 
-> A React 19 app for exploring every country in the world. Search countries by name, filter them by continent, open a details page for any country, and switch between light and dark mode. Country data is cached in the browser, so the app opens instantly on later visits.
-
-**🌍 Live demo:** <https://all-around-world.vercel.app/>
+> A multilingual React 19 news reader: read the latest news in Arabic, English, Turkish and 7 more languages, with right-to-left layout for Arabic and Urdu. You can search headlines as you type, filter by twelve topics, and page through the results. Each new keystroke cancels the request still in flight, so only the latest search ever reaches the screen.
 
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)
-![React Router](https://img.shields.io/badge/React_Router-8-CA4245?logo=reactrouter&logoColor=white)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss&logoColor=white)
+![Material UI](https://img.shields.io/badge/Material_UI-9-007FFF?logo=mui&logoColor=white)
+![TanStack Query](https://img.shields.io/badge/TanStack_Query-5-FF4154?logo=reactquery&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white)
-![Vercel](https://img.shields.io/badge/Deployed_on-Vercel-000000?logo=vercel&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss&logoColor=white)
+![Lodash](https://img.shields.io/badge/Lodash-4-3492FF?logo=lodash&logoColor=white)
 
 ## 🎬 Demo
-▶️**Full walkthrough with voice-over (Egyptian Arabic, 1 min 40 s).** Press play below to watch it with sound:
- 
-  https://github.com/user-attachments/assets/a14505f6-b2b1-44f9-bf42-84ca1324fad1
 
+![News Feed App demo: Arabic feed (right-to-left), live search, topics, paging and switching to English](docs/demo.gif)
+
+▶️ **Full walkthrough with voice-over (Egyptian Arabic, 1 min 20 s).** Press play below to watch it with sound:
+
+<!--
+  HOW TO SHOW THE FULL VIDEO WITH SOUND (one time, about 1 minute):
+  1. Open this README on GitHub and click the ✏️ (Edit) button.
+  2. Drag the file "News_Feed_Demo_EG.mp4" from your computer and drop it on the line below this comment.
+  3. GitHub uploads it and inserts a link like https://github.com/user-attachments/assets/xxxxxxxx
+     Keep that link alone on its own line: GitHub turns it into a video player right inside the README.
+  4. Click "Commit changes".
+  (A video file committed inside the repository will NOT play in the README; it must be uploaded this way.)
+-->
 
 
 ---
@@ -28,15 +37,16 @@
 - [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
+  - [Environment Variables](#environment-variables)
   - [Available Scripts](#available-scripts)
 - [Usage](#usage)
 - [Project Structure](#project-structure)
 - [Architecture](#architecture)
-  - [Routes](#routes)
   - [Component Tree](#component-tree)
-  - [Data Flow and Caching](#data-flow-and-caching)
-  - [Search and Region Filter](#search-and-region-filter)
-  - [Dark Mode](#dark-mode)
+  - [Request Lifecycle](#request-lifecycle)
+  - [Debounce and Request Cancellation](#debounce-and-request-cancellation)
+  - [Pagination](#pagination)
+  - [UI States](#ui-states)
 - [API Reference](#api-reference)
 - [Components Reference](#components-reference)
 - [Styling](#styling)
@@ -49,15 +59,15 @@
 
 ## About the Project
 
-All Around the World is a single-page application built with **React 19** and **React Router**. It loads data for about 250 countries from the public [countries.dev](https://countries.dev/) API and shows each one as a card with its flag, population, region and capital. Click a card to open a details page with more information.
+News Feed App is a single-page application that loads the latest articles from [NewsData.io](https://newsdata.io/) (a news API covering 90+ languages) and shows them as Material UI cards with an image, summary and author. Pick a language and the whole feed switches to it, including the text direction.
 
-The project practises:
+The project is a practical exercise in **handling asynchronous data in React the right way**:
 
-- **Client-side routing** with nested routes, URL parameters and a catch-all 404 page.
-- A **custom hook** (`useFetchData`) that handles loading, errors and data in one place.
-- **Caching in `localStorage`**, so the full list is downloaded only once.
-- **Derived lists:** search and region filtering create a new list without changing the original data.
-- **Class-based dark mode** with Tailwind CSS v4, remembered between visits.
+- **Debouncing** user input so that typing doesn't send one request per keystroke.
+- **Cancelling stale requests** with `AbortController`, so a slow old response can never overwrite a newer one.
+- Treating a cancelled request (`AbortError`) as expected behaviour, not as an error.
+- Showing clear **loading, error and empty states**.
+- Keeping values that don't affect rendering in `useRef`, so they don't cause extra re-renders.
 
 ---
 
@@ -65,16 +75,16 @@ The project practises:
 
 | Area | What you can do |
 | --- | --- |
-| **Country cards** | Browse about 250 countries in a grid. Each card shows the flag, name, population, region and capital |
-| **Search** | Type a name and press <kbd>Enter</kbd>. The search ignores upper and lower case and matches any part of the name (`united` finds the United States, the United Kingdom, the United Arab Emirates…) |
-| **Empty state** | When nothing matches, an illustration and a *"No results found"* message appear |
-| **Region filter** | Filter by *All regions*, Africa, Asia, Europe or Oceania with a searchable dropdown (react-select) |
-| **Country details** | Click a card to open `/country/:name`: large flag, population (formatted), region, sub-region, capital, top-level domain, currencies and languages |
-| **Back navigation** | The ← button on the details page, or the logo in the header, returns to the home page |
-| **Dark mode** | Switch between light (☀) and dark (☾) themes. Your choice is saved and restored on the next visit |
-| **Fast reloads** | The country list is cached in `localStorage`, so later visits show the countries instantly, without a loading step |
-| **Loading and error states** | *"Countries information will be loaded..."* while loading, and *"Something is wrong!"* if the request fails |
-| **404 page** | Any unknown URL shows a *"404 No Page found"* page |
+| **Latest stories** | See the latest articles with image, summary, author and date |
+| **10 languages** | العربية (Arabic), English, Türkçe, Français, Deutsch, Español, Italiano, Português, Русский, اردو (Urdu) |
+| **Right-to-left support** | Arabic and Urdu flip the whole feed to right-to-left (`dir="rtl"`) |
+| **Live search** | Search headlines as you type. The request is sent 500 ms after you stop typing |
+| **Request cancellation** | Every new keystroke, category change or page change cancels the request still in flight |
+| **Category filter** | Filter by *All* or one of 12 topics: World, Politics, Business, Technology, Science, Health, Sports, Entertainment, Environment, Education, Lifestyle, Crime |
+| **Pagination** | Use **Previous** and **Next** to move through the results, 10 articles per page |
+| **Loading skeletons** | Five skeleton cards appear while articles load |
+| **Error and empty states** | A clear message appears when the request fails or nothing matches |
+| **Article links** | Click a card to open the original article |
 
 ---
 
@@ -84,15 +94,16 @@ The project practises:
 | --- | --- | --- |
 | UI | [React 19](https://react.dev/) | Component library |
 | Language | JavaScript (ES2022+, JSX) | Application code |
-| Routing | [React Router 8](https://reactrouter.com/) | `BrowserRouter`, nested routes, `useParams`, `Link` |
 | Build tool | [Vite 8](https://vite.dev/) | Dev server with HMR and production bundler |
 | Compiler | [React Compiler](https://react.dev/learn/react-compiler) (`babel-plugin-react-compiler`) | Automatic memoization at build time |
-| Styling | [Tailwind CSS 4](https://tailwindcss.com/) | Utility classes and class-based dark mode |
-| Dropdown | [react-select 5](https://react-select.com/) | The region filter |
-| Font | [Inter](https://fonts.google.com/specimen/Inter) (Google Fonts) | App typography |
-| Data | [countries.dev](https://countries.dev/) | Country data (REST Countries v2 format) |
-| Linting / formatting | [Oxlint](https://oxc.rs/) + [Prettier](https://prettier.io/) with `prettier-plugin-tailwindcss` | Code quality and consistent class order |
-| Hosting | [Vercel](https://vercel.com/) | Live deployment |
+| Components | [Material UI 9](https://mui.com/material-ui/) + [Emotion](https://emotion.sh/) | `AppBar`, `Card`, `Select`, `Skeleton`, `Button` and other components, plus `styled()` |
+| Icons | [@mui/icons-material](https://mui.com/material-ui/material-icons/) | Search icon |
+| Font | [@fontsource/roboto](https://fontsource.org/fonts/roboto) | Self-hosted Roboto (weights 300 to 700) |
+| Data layer | [TanStack Query 5](https://tanstack.com/query/latest) | `QueryClientProvider` set up at the app root |
+| Utilities | [Lodash](https://lodash.com/docs/#debounce) | `debounce` for search, filter and paging requests |
+| Styling | [Tailwind CSS 4](https://tailwindcss.com/) | Utility classes and global styles |
+| Linting | [Oxlint](https://oxc.rs/docs/guide/usage/linter.html) | Fast linter with React and hooks rules |
+| Data source | [NewsData.io](https://newsdata.io/), `/api/1/latest` | Articles in 90+ languages, with images, summaries and authors |
 
 ---
 
@@ -117,7 +128,23 @@ npm install
 npm run dev
 ```
 
-Then open the URL printed in the terminal (usually <http://localhost:5173>). No API key is needed.
+Then open the URL printed in the terminal (usually <http://localhost:5173>).
+
+### Environment Variables
+
+The repository includes a `.env.example` file:
+
+```bash
+cp .env.example .env
+```
+
+| Variable | Required | Description |
+| --- | --- | --- |
+| `VITE_NEWSDATA_API_KEY` | **Yes** | Your NewsData.io API key. Without it, the app shows a "Missing API key" message |
+
+> **Get a free key:** sign up at <https://newsdata.io/register> (no card needed) and copy your key from the dashboard into `.env`. Restart `npm run dev` after editing `.env`, because Vite only reads it at startup. The free plan includes 200 requests a day, 10 articles per request, and news delayed by about 12 hours.
+>
+> `.env` is listed in `.gitignore`, so it is never committed. Keep it that way. Also note that any variable starting with `VITE_` is embedded in the JavaScript sent to the browser, so it is **not** secret in production. A truly private key needs a small back end or serverless proxy.
 
 ### Available Scripts
 
@@ -132,150 +159,160 @@ Then open the URL printed in the terminal (usually <http://localhost:5173>). No 
 
 ## Usage
 
-1. **Browse.** All countries appear as cards on the home page.
-2. **Search.** Type part of a country's name in **Search...** and press <kbd>Enter</kbd>. Empty the box and press <kbd>Enter</kbd> again to see all countries.
-3. **Filter.** Choose a continent from the **All regions** dropdown.
-4. **Open a country.** Click any card to see its details, then use **←** or the logo to go back.
-5. **Change the theme.** Use the ☀ / ☾ switch in the top-right corner.
+1. **Browse.** The app opens on the latest news in Arabic. Pick another language from the language dropdown (to change the default, edit `DEFAULT_LANGUAGE` in `NewsFeed.jsx`).
+2. **Search.** Type in the **Search** box in any language, for example `اقتصاد`. Results update shortly after you stop typing.
+3. **Filter.** Pick a topic from the dropdown, or **All** to remove the filter. You can combine a filter with a search.
+4. **Page.** Click **Next** for the following 10 articles, or **Previous** to go back. Changing the search, topic or language goes back to the first page.
+5. **Read.** Click any card to open the full article on the publisher's site.
 
 ---
 
 ## Project Structure
 
 ```text
-All_around_the_world/
+newsfeed_app/
 ├── docs/
-│   └── demo.gif               # Animated demo shown at the top of this README
+│   └── demo.gif                 # Animated demo shown at the top of this README
 ├── public/
-│   ├── favicon.svg            # Browser tab icon
-│   └── icons.svg              # SVG sprite (from the Vite template)
+│   ├── favicon.svg              # Browser tab icon
+│   └── icons.svg                # SVG sprite (from the Vite template)
 ├── src/
-│   ├── assets/
-│   │   └── Around_the_world.drawio   # Design / component diagram (draw.io)
+│   ├── assets/                  # Images from the Vite template (not used by the app)
 │   ├── components/
-│   │   ├── CountryCard.jsx    # One card: flag, name, population, region, capital (links to the details page)
-│   │   ├── CountryList.jsx    # 4-column grid of CountryCard, or EmptySearch when the list is empty
-│   │   ├── EmptySearch.jsx    # "No results found" illustration (inline SVG)
-│   │   ├── Header.jsx         # Top bar: Logo + ThemeSwitcher
-│   │   ├── Logo.jsx           # Globe-and-pin SVG logo, links to "/"
-│   │   ├── RegionMenu.jsx     # react-select dropdown that filters by region
-│   │   ├── SearchBar.jsx      # Search form, filters by name on submit
-│   │   ├── ShowMessage.jsx    # Centred message (loading / error)
-│   │   └── ThemeSwitcher.jsx  # Light / dark toggle, saved in localStorage
-│   ├── pages/
-│   │   ├── Country.jsx        # Details page for /country/:country
-│   │   ├── Home.jsx           # Search + region filter + country grid
-│   │   ├── Layout.jsx         # Shared layout: Header + <Outlet />
-│   │   └── NoPage.jsx         # 404 page
-│   ├── App.css                # Inter font import, @theme font token, dark variant
-│   ├── App.jsx                # Router and route definitions
-│   ├── index.css              # Tailwind import and class-based dark variant
-│   ├── main.jsx               # Entry point: mounts <App /> in <StrictMode>
-│   └── useFetchData.js        # Custom hook: fetch, cache, loading and error state
-├── .oxlintrc.json             # Oxlint rules
-├── .prettierrc                # Prettier config (with the Tailwind plugin)
-├── index.html                 # HTML shell; Vite injects the bundle here
-├── package.json               # Dependencies and npm scripts
-├── tailwind.config.js         # Tailwind configuration
-└── vite.config.js             # React plugin, React Compiler (Babel), Tailwind
+│   │   ├── Header.jsx           # AppBar with title, search box and category dropdown
+│   │   ├── LoadingArticles.jsx  # Skeleton card shown while articles load
+│   │   ├── NewsArticle.jsx      # One article card: title, description, author, date, link
+│   │   ├── NewsFeed.jsx         # Main container: state, fetching, debounce, cancellation, paging
+│   │   └── StyledCard.jsx       # MUI Card styled with vertical spacing (styled API)
+│   ├── App.css                  # App-level styles (currently empty)
+│   ├── App.jsx                  # Root: Roboto font, global CSS, QueryClientProvider, <NewsFeed />
+│   ├── index.css                # Tailwind import, CSS variables, light/dark base styles
+│   ├── main.jsx                 # Entry point: mounts <App /> in <StrictMode>
+│   └── useDebounce.js           # Reusable useDebounce(value, delay) hook
+├── .env.example                 # Template for local environment variables
+├── .gitignore                   # Ignores node_modules, dist and .env
+├── .oxlintrc.json               # Oxlint rules (rules-of-hooks, only-export-components)
+├── index.html                   # HTML shell; Vite injects the bundle here
+├── package.json                 # Dependencies and npm scripts
+└── vite.config.js               # React plugin, React Compiler (Babel), Tailwind, dev proxy
 ```
 
 ---
 
 ## Architecture
 
-### Routes
-
-| Path | Element | Description |
-| --- | --- | --- |
-| `/` | `Layout` → `Home` | Country grid with search and region filter |
-| `/country/:country` | `Layout` → `Country` | Details for one country (for example `/country/Egypt`) |
-| `*` | `Layout` → `NoPage` | 404 page for any other URL |
-
-`Layout` renders the `Header` once and an `<Outlet />` for the current page, so the logo and theme switch are always visible.
-
 ### Component Tree
 
 ```mermaid
 graph TD
     main[main.jsx] --> App
-    App -->|BrowserRouter / Routes| Layout
-    Layout --> Header
-    Header --> Logo
-    Header --> ThemeSwitcher
-    Layout -->|"/"| Home
-    Layout -->|"/country/:country"| Country
-    Layout -->|"*"| NoPage
-    Home --> SearchBar
-    Home --> RegionMenu
-    Home --> CountryList
-    CountryList --> CountryCard["CountryCard × N"]
-    CountryList -->|empty list| EmptySearch
-    Home -->|loading / error| ShowMessage
-    Country -->|loading / error| ShowMessage
+    App -->|QueryClientProvider| NewsFeed
+    NewsFeed --> Header
+    NewsFeed -->|loading| LoadingArticles["LoadingArticles × 5"]
+    NewsFeed -->|success| NewsArticle["NewsArticle × N"]
+    NewsFeed -->|error / empty| Message[Typography message]
+    NewsFeed --> Paging[Previous / Next buttons]
+    LoadingArticles --> StyledCard
+    NewsArticle --> StyledCard
 ```
 
-### Data Flow and Caching
+`NewsFeed` owns all state. `Header` is a presentational component: it receives `onSearchChange`, `onCategoryChange` and `category` as props and reports user input back up.
 
-All data loading lives in the custom hook **`useFetchData(country?)`**. It returns `Result`, `isLoading`, `isError`, `filteredCountriesList` and `setFilteredCountriesList`.
+### Request Lifecycle
 
 ```mermaid
-flowchart TD
-    A[useFetchData called] --> B{country given?}
-    B -- yes: details page --> C["fetch countries.dev/name/:country"] --> D["Result = data[0]"]
-    B -- no: home page --> E{"'countries' in localStorage?"}
-    E -- yes --> F[use the cached list instantly]
-    E -- no --> G["fetch countries.dev/countries?limit=280"] --> H[save to localStorage] --> F
+sequenceDiagram
+    participant U as User
+    participant H as Header
+    participant F as NewsFeed
+    participant D as debounce (500 ms)
+    participant A as NewsData.io
+
+    U->>H: types "e", "ec", "eco"...
+    H->>F: onSearchChange(value)
+    F->>F: save query in ref, reset offset to 0
+    F->>F: abort() the request in flight
+    F->>D: debouncedAPICall()
+    Note over D: timer restarts on every keystroke
+    D->>F: fires 500 ms after the last keystroke
+    F->>F: new AbortController, setLoading(true)
+    F->>A: GET /api/1/latest?q=eco&language=ar&... (with signal)
+    A-->>F: JSON results + nextPage token
+    F->>F: map to article objects, setArticle(), setLoading(false)
 ```
 
-- **Home page:** the full list is read from `localStorage` when it's there. Otherwise it's downloaded once and saved, which is why reloads are instant.
-- **Details page:** always fetches fresh data for the one country in the URL.
-- `isLoading` and `isError` drive the `ShowMessage` component on both pages.
+### Debounce and Request Cancellation
 
-### Search and Region Filter
+Search, filtering and paging all go through **one** debounced function, created once with `useMemo(..., [])`. A new debounce created on every render would never actually delay anything.
 
-Both controls receive the **full list** (`Result`) and write a **new filtered list** with `setFilteredCountriesList`. The original data never changes:
+| Ref | Holds | Why a ref (not state) |
+| --- | --- | --- |
+| `controllerRef` | The `AbortController` of the request in flight | Must survive renders so the *next* action can cancel it |
+| `queryValue` | Current search text | Read inside the debounced callback without re-creating it |
+| `categoryRef` | Current category | Same reason. The `category` state is kept only to drive the `<Select>` |
+| `languageRef` | Current language code | Same reason. The `language` state drives the dropdown and the text direction |
+| `pageTokensRef` | The `nextPage` token of every page reached | NewsData.io pages with tokens, so we remember them to go forward and back |
+| `OffsetRef` | Current paging offset | Changes on every page click and doesn't need a re-render by itself |
 
-```js
-// SearchBar: case-insensitive "contains" match, run on form submit (Enter)
-countriesList.filter((c) => c.name.toLowerCase().includes(searchTerm.toLowerCase()));
+How cancellation works:
 
-// RegionMenu: exact region match ("All regions" restores the full list)
-countriesList.filter((c) => c.region === region);
-```
+1. On **every** keystroke, category change or page click, `controllerRef.current?.abort()` runs **immediately**, without waiting for the debounce.
+2. When the debounce fires, a **new** `AbortController` is created, stored in the ref, and its `signal` is passed to `fetch`.
+3. A cancelled `fetch` rejects with `AbortError`. The `.catch` handler **ignores** it, because cancellation is intentional and the newer request will update the UI.
+4. On unmount, the `useEffect` cleanup cancels the request in flight and any pending debounce with `debouncedAPICall.cancel()`.
 
-`CountryList` renders whatever list it receives, or `EmptySearch` when the list is empty.
+### Pagination
 
-### Dark Mode
+- The page size is `PAGE_SIZE = 10`, the free-plan maximum. **Next** adds 10 to the offset, and **Previous** subtracts 10, never going below 0.
+- NewsData.io doesn't use page numbers. Each response includes a `nextPage` **token** for the following page. The app saves every token in `pageTokensRef` (index 0 = page 1 with no token, index 1 = token for page 2…), so **Previous** simply reuses a token saved on the way forward.
+- **Previous** is disabled on the first page (offset 0).
+- **Next** is disabled when the last response had fewer than 10 articles, or when the API returned no `nextPage` token (the last page).
+- Both buttons are disabled while a request is loading.
 
-- Tailwind v4 uses a **class-based** dark variant: `@custom-variant dark (&:where(.dark, .dark *));`
-- `ThemeSwitcher` adds or removes the `dark` class on `<html>` and saves `"light"` or `"dark"` in `localStorage` under `theme`.
-- On start it reads the saved value, so the chosen theme survives reloads.
+### UI States
+
+| State | Condition | What is shown |
+| --- | --- | --- |
+| Loading | `loading === true` | 5 × `LoadingArticles` skeleton cards |
+| Success | `!loading && articles.length > 0` | One `NewsArticle` card per article |
+| Empty | `!loading && articles.length === 0` | *"No articles found."* |
+| Error | `error !== ""` | The error message in red, above the list |
 
 ---
 
 ## API Reference
 
-Data comes from [countries.dev](https://countries.dev/) in the REST Countries **v2** format. No key is required.
+The app calls the **latest news** endpoint of [NewsData.io](https://newsdata.io/documentation):
 
-| Endpoint | Used by | Returns |
+```text
+GET https://newsdata.io/api/1/latest
+```
+
+| Parameter | Value sent | Meaning |
 | --- | --- | --- |
-| `GET https://countries.dev/countries?limit=280` | Home page | Array of all countries |
-| `GET https://countries.dev/name/{name}` | Details page | Array of matches. The app uses the first item |
+| `apikey` | `VITE_NEWSDATA_API_KEY` | Your API key |
+| `language` | e.g. `ar`, `en`, `tr` | Only articles written in this language (2-letter ISO 639-1 code) |
+| `size` | `10` | Articles per page (free-plan maximum) |
+| `category` | e.g. `sports` | Sent only when a topic is selected |
+| `q` | search text, any language | Sent only when the search box is not empty |
+| `page` | a `nextPage` token | Sent only for page 2 and later |
 
-**Fields the app reads:**
+**Adding a language:** add one line to `LANGUAGES` in `Header.jsx`, for example `{ value: "id", label: "Bahasa Indonesia" }`. If it's written right to left, also add its code to `RTL_LANGUAGES` in `NewsFeed.jsx`.
 
-| Field | Shown as |
-| --- | --- |
-| `name` | Card title, details title, search target |
-| `flags.svg` | Card image and large flag |
-| `population` | Population (`toLocaleString()` on the details page) |
-| `region`, `subregion` | Region, Sub Region (and the region filter) |
-| `capital` | Capital |
-| `topLevelDomain[]` | Top Level Domain |
-| `currencies[].name` | Currencies |
-| `languages[].name` | Languages |
-| `alpha2Code` | React `key` for each card |
+**Response mapping.** Each item in `results` becomes:
+
+```js
+{
+  author:      item.creator?.[0] ?? item.source_name ?? "",
+  title:       item.title,
+  description: item.description ?? "",
+  url:         item.link,
+  image:       item.image_url ?? null,
+  publishedAt: item.pubDate as "YYYY-MM-DDTHH:mm:ssZ" (UTC),
+}
+```
+
+The response's `nextPage` token is saved for the **Next** button. A missing key, a non-OK HTTP status, or a body whose `status` is not `"success"` shows an error message. The app uses the API's own message when there is one, such as *"API key is invalid"*.
 
 ---
 
@@ -283,45 +320,41 @@ Data comes from [countries.dev](https://countries.dev/) in the REST Countries **
 
 | Component | Props | Description |
 | --- | --- | --- |
-| `Layout` | — | Header plus `<Outlet />` for the active page |
-| `Header` | — | Logo on the left, theme switch on the right |
-| `Logo` | — | Globe-and-pin SVG with the text *Around the world*. Links to `/` |
-| `ThemeSwitcher` | — | Two buttons (☀ / ☾). Toggles the `dark` class and saves the choice |
-| `Home` | — | Uses `useFetchData()` and renders SearchBar, RegionMenu and CountryList |
-| `SearchBar` | `countriesList`, `setFilteredCountriesList` | Form with a search input. Filters on submit |
-| `RegionMenu` | `countriesList`, `setFilteredCountriesList` | react-select dropdown with 5 options |
-| `CountryList` | `data` | Grid of `CountryCard`, or `EmptySearch` if `data` is empty |
-| `CountryCard` | `flag`, `countryName`, `population`, `region`, `capital` | Card that links to `country/{countryName}` |
-| `EmptySearch` | — | Illustration with *"No results found"* |
-| `Country` | — (reads `:country` with `useParams`) | Details page with a back link |
-| `ShowMessage` | `message` | Large centred text |
-| `NoPage` | — | *"404 No Page found"* |
-| `useFetchData` | `(country?)` | Hook: returns `Result`, `isLoading`, `isError`, `filteredCountriesList`, `setFilteredCountriesList` |
+| `App` | — | Loads the Roboto font and global CSS, creates the `QueryClient`, and renders `NewsFeed` inside `QueryClientProvider` |
+| `NewsFeed` | — | Holds `articles`, `loading`, `error`, `category` and `language` state and the refs. Fetches data, debounces input, cancels stale requests, sets the text direction, and renders the list and paging buttons |
+| `Header` | `onSearchChange(value)`, `onCategoryChange(event)`, `category`, `onLanguageChange(event)`, `language` | MUI `AppBar` with the app title, a search input, a language `Select` (10 languages) and a category `Select` (*All* plus 12 topics) |
+| `NewsArticle` | `title`, `description`, `image`, `author`, `publishedAt`, `url` | Card that links to the article. It shows an image when one exists, plus the author and the publish date in the local date format |
+| `LoadingArticles` | — | Skeleton placeholder with the same shape as a `NewsArticle` card |
+| `StyledCard` | MUI `Card` props | `Card` styled with `theme.spacing(2, 0)` for vertical spacing |
+| `useDebounce` | `(value, delay = 500)` | Hook that returns `value` only after it has stopped changing for `delay` ms |
 
 ---
 
 ## Styling
 
-- **Tailwind CSS v4** through the `@tailwindcss/vite` plugin, with a class-based `dark:` variant.
-- **Inter** is loaded from Google Fonts and exposed as the `font-inter` utility through `@theme { --font-inter: "Inter", sans-serif; }`.
-- The country grid uses a fixed 4-column layout (`grid-cols-4`). The details page switches to two columns on large screens (`lg:grid-cols-2`).
-- The react-select dropdown is styled with its `styles` and `classNames` props: a rounded pill and a dark background in dark mode.
+- **Material UI** provides the components and theme. Styles are written with the `sx` prop and the `styled()` API (see `StyledCard`).
+- **Tailwind CSS v4** is loaded through `@tailwindcss/vite` and imported in `index.css`.
+- **`index.css`** defines CSS variables for colours, fonts and shadows, with a dark variant through `prefers-color-scheme`.
+- **Roboto** is self-hosted with `@fontsource/roboto`, so no request goes to Google Fonts.
+- The feed is centred in a fixed **900 px** column.
 
 ---
 
 ## Known Limitations and Roadmap
 
-- [x] Search, region filter, details page, dark mode, caching and 404 page
-- [ ] Add **Americas** to the region filter (it currently offers only Africa, Asia, Europe and Oceania)
-- [ ] The search icon sits over the top part of the input, so clicking there doesn't focus the box. Add `pointer-events-none` to the icon wrapper in `SearchBar.jsx`
-- [ ] Search while typing (debounced), instead of only on <kbd>Enter</kbd>
-- [ ] Combine search and region filter (each one currently starts again from the full list)
-- [ ] Refresh the cached list after some time (it's currently kept forever in `localStorage`)
-- [ ] Responsive grid for small screens (`grid-cols-1 sm:grid-cols-2 lg:grid-cols-4`)
-- [ ] In `Country.jsx`, change `class` to `className` on `<main>`
-- [ ] Show border countries on the details page
-- [ ] Remove the `console.log` in `CountryList.jsx`
+- [x] Debounced search with request cancellation
+- [x] Category filter and offset paging
+- [x] Loading skeletons, error and empty states
+- [ ] Move fetching to **TanStack Query** (`useQuery` with `signal`). The provider is already set up, but requests are still made manually
+- [ ] Replace Lodash `debounce` with the existing `useDebounce` hook, which is currently unused
+- [ ] The dev proxy `/news-api` in `vite.config.js` is not used by the code. Use it or remove it
+- [x] Multiple languages with right-to-left layout
+- [ ] Translate the interface text (labels, buttons, messages) into the selected language
+- [ ] Show dates in the selected language's format (`toLocaleDateString(language)`)
+- [ ] Responsive layout for small screens (the column is a fixed 900 px)
+- [ ] Add `@mui/material` to `package.json` as a direct dependency. It is currently installed only as a peer dependency of `@mui/icons-material`
 - [ ] Unit tests (Vitest + React Testing Library)
+- [ ] Remove unused Vite template assets (`hero.png`, `react.svg`, `vite.svg`)
 
 ---
 
@@ -346,6 +379,6 @@ No license has been chosen yet. Until one is added, all rights are reserved by t
 
 ## Acknowledgments
 
-- [countries.dev](https://countries.dev/) and the [REST Countries](https://restcountries.com/) project for the country data
-- [React Router](https://reactrouter.com/) and [react-select](https://react-select.com/)
-- [Vite](https://vite.dev/), [Tailwind CSS](https://tailwindcss.com/) and [Vercel](https://vercel.com/)
+- [NewsData.io](https://newsdata.io/) for the multilingual news data
+- [Material UI](https://mui.com/) for the component library
+- [TanStack Query](https://tanstack.com/query/latest), [Lodash](https://lodash.com/) and [Vite](https://vite.dev/)
