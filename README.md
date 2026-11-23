@@ -12,15 +12,11 @@
 
 ## 🎬 Demo
 
-![All Around the World demo: country cards, search, region filter, country details page, dark mode and 404 page](docs/demo.gif)
+![All Around the World demo: country cards, search, region filter, country details page, dark mode and 404 page][https://github.com/user-attachments/assets/b18d418d-f8a3-4ae9-a537-5049649402c8
+])
 
 ▶️ **Full walkthrough with voice-over (Egyptian Arabic, 1 min 40 s).** Press play below to watch it with sound:
 
-<!--
- 
-https://github.com/user-attachments/assets/b18d418d-f8a3-4ae9-a537-5049649402c8
-
--->
 
 ---
 
